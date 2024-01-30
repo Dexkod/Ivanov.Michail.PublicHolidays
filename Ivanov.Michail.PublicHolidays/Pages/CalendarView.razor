@@ -1,0 +1,67 @@
+﻿@page "/calendar"
+
+<div class="row">
+	<h1 class="text-center">Календарь</h1>
+</div>
+
+<ComboBox Name="Год" Values="Repository.GetYears()" ChangedValue="OnChangedYear" />
+<ComboBox Name="Страна" Values="Repository.Countries" ChangedValue="OnChangedCountry"/>
+<Calendar @key="_calendarKey" Country="@_country" Year="@_year"/>
+
+@code 
+{
+	/// <summary>
+	/// Страна.
+	/// </summary>
+	private string _country = "RU";
+
+	/// <summary>
+	/// Ключ календаря.
+	/// </summary>
+	private Guid _calendarKey = Guid.NewGuid();
+
+	/// <summary>
+	/// Год.
+	/// </summary>
+	private int _year = DateTime.Now.Year;
+
+	/// <summary>
+	/// Смена года.
+	/// </summary>
+	/// <param name="year">Год.</param>
+	private void OnChangedYear(string year)
+	{
+		int result;
+
+		if (!int.TryParse(year, out result))
+		{
+			return;
+		}
+
+		_year = result;
+		RefreshCalendar();
+	}
+
+	/// <summary>
+	/// Смена страны.
+	/// </summary>
+	/// <param name="country">Страна.</param>
+	private void OnChangedCountry(string country)
+	{
+		if (string.IsNullOrWhiteSpace(country))
+		{
+			return;
+		}
+
+		_country = country;
+		RefreshCalendar();
+	}
+
+	/// <summary>
+	/// Обновление календаря.
+	/// </summary>
+	private void RefreshCalendar()
+	{
+		_calendarKey = Guid.NewGuid();
+	}
+}

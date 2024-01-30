@@ -1,0 +1,71 @@
+﻿<div class="table-responsive mt-3">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<td class="text-center">Дата</td>
+				<td class="text-center">Праздничный ли день</td>
+				<td class="text-center">Название праздника</td>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Days)
+			{
+				<tr>
+					<td class="text-center">@item.Time.ToString("dd.MM.yyyy")</td>
+					@{var result = item.IsPublicHoliday ? "Да" : "Нет";}
+					<td class="text-center">@result</td>
+					<td class="text-center">@item.Name</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+@code 
+{
+	/// <summary>
+	/// Страна.
+	/// </summary>
+	[Parameter]
+	public string Country { get; set; }
+
+	/// <summary>
+	/// Год.
+	/// </summary>
+	[Parameter]
+	public int  Year { get; set; }
+
+	/// <summary>
+	/// Список дней.
+	/// </summary>
+	private List<Day> Days;
+
+	/// <summary>
+	/// Заполнение дней При инициализированной.
+	/// </summary>
+	/// <returns>Задача инициализации.</returns>
+	protected async override Task OnInitializedAsync()
+	{
+		Days = new List<Day>();
+		Days = Repository.GetAllDaysInYear(Year);
+
+		var api = new PublicHolidayApi();
+		var holidays = await api.GetPublicHolidaysAsync(Year.ToString(), Country);
+
+		if (holidays == null || holidays.Count == 0)
+		{
+			return;
+		}
+
+		foreach(var day in Days)
+		{
+			var holiday = holidays.FirstOrDefault(x => x.Date == day.Time);
+
+			if (holiday != null)
+			{
+				day.Name = holiday.Name;
+				day.IsPublicHoliday = true;
+			}
+		}
+	}
+}

@@ -1,0 +1,61 @@
+﻿<div class="row mt-3">
+	<div class="col">
+		<label for="items">@Name</label>
+
+		<select id="items" @onchange="@OnChangeValue">
+			@{
+				for(int i = 0; i < Values.Count; i++)
+				{
+					<option value="@i">@Values[i]</option>
+				}
+			}
+		</select>
+	</div>
+</div>
+
+@code {
+	/// <summary>
+	/// Название.
+	/// </summary>
+	[Parameter]
+	public string Name { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Значения.
+	/// </summary>
+	[Parameter]
+	public List<string> Values { get; set; } = new List<string>();
+
+	/// <summary>
+	/// Изменное значение.
+	/// </summary>
+	[Parameter]
+	public EventCallback<string> ChangedValue { get; set;}
+
+	/// <summary>
+	/// Результат.
+	/// </summary>
+	private int _result = 0;
+
+	/// <summary>
+	/// Изменение значения.
+	/// </summary>
+	/// <param name="sender">Значение.</param>
+	/// <returns>Вызов callback функции.</returns>
+	private async Task OnChangeValue(ChangeEventArgs sender)
+	{
+		if(sender == null || sender.Value == null)
+		{
+			return;
+		}
+
+		int result = 0;
+
+		if(!int.TryParse(sender.Value.ToString(), out result))
+		{
+			return;
+		}
+
+		await ChangedValue.InvokeAsync(Values[result]);
+	}
+}
